@@ -3,7 +3,7 @@
 </h3>
 
 <h1 align="center">
-  <img alt="challenge Price Survey" title="challenge Price Survey" src="./src/assets/images/logo-price-survey-white.png" width="500px" />
+  <img alt="challenge Price Survey" title="challenge Price Survey" src="./src/assets/logo-price-survey-white.png" width="500px" />
 </h1>
 
 
