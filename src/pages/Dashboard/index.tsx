@@ -1,39 +1,71 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import axios from 'axios';
-import { Container, Search, SelectProducts, SelectDays } from './styles';
+import { toast } from 'react-toastify';
+import { Container, Button } from './styles';
+
+import DashChart from '../../components/DashChart';
+import PercenteDash from '../../components/DashChart/PercenteDash';
+import TableComponent from '../../components/TableComponent';
+import Loading from '../../components/Loading';
 
 interface Response {
-  name: string;
+  data: Array<{
+    name: string;
+    store: string;
+    address: string;
+    surveyed_products: number;
+    total_products: number;
+  }>;
 }
 
+const tableProps: Array<object> = [];
 const Dashboard: React.FC = () => {
   const [data, setData] = useState<Response[]>([]);
-  useEffect(() => {
-    axios
-      .get('https://run.mocky.io/v3/758192b4-c86a-4770-bec0-c7b1a876315a')
-      .then((resonse) => {
-        setData(resonse.data);
-      });
-  }, []);
+  const [loading, setLoading] = useState(false);
+  const handleTable = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        'https://run.mocky.io/v3/758192b4-c86a-4770-bec0-c7b1a876315a',
+      );
+
+      setData(response.data);
+
+      if (data.length === 0) {
+        toast.error('Ops, pesquise novamente =[');
+        setLoading(false);
+        return;
+      }
+
+      data &&
+        data.forEach((item) => {
+          tableProps.push(item);
+        });
+
+      setLoading(false);
+    } catch (err) {
+      toast.error(err);
+    }
+  }, [data]);
   return (
     <>
       <Container>
         <strong>Dashboard</strong>
+        <p>
+          Total dias: 5 <br /> Total Pesquisas: 28 <br />
+          Meta: 30 pesquisas
+        </p>
+        <Button onClick={handleTable}>Exibir Tabela</Button>
+        {!loading ? (
+          <>
+            <DashChart />
+            <PercenteDash />
+            <TableComponent data={tableProps} />
+          </>
+        ) : (
+          <Loading />
+        )}
       </Container>
-      <Search>
-        <div>
-          <strong>Encontre aqui o que está procurando</strong>
-          <SelectProducts name="pesquisas" id="name">
-            {data &&
-              data.map((op) => <option value={op.name}>{op.name}</option>)}
-          </SelectProducts>
-          <p>Tempo de dias</p>
-          <SelectDays name="dias" id="dias">
-            <option value="1">1</option>
-            <option value="2">2</option>
-          </SelectDays>
-        </div>
-      </Search>
     </>
   );
 };
